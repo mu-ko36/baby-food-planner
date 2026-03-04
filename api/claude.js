@@ -40,23 +40,30 @@ ${ingredients}
       })
     })
 
-    const data = await response.json()
+const data = await response.json()
 
-// Claudeのテキスト回答
-const text = data.content[0].text
+// 念のためログ
+console.log("Claude response:", data)
 
-// JSON部分だけ取り出す
+// Claudeのテキスト取得
+const text = data?.content?.[0]?.text || ""
+
+if (!text) {
+  throw new Error("Claude response empty")
+}
+
+// JSON部分抽出
 const jsonStart = text.indexOf("{")
 const jsonEnd = text.lastIndexOf("}") + 1
-const jsonString = text.slice(jsonStart, jsonEnd)
+
 if (jsonStart === -1 || jsonEnd === -1) {
   throw new Error("JSON not found in Claude response")
 }
 
-// JSONとして解析
+const jsonString = text.slice(jsonStart, jsonEnd)
+
 const result = JSON.parse(jsonString)
 
-// フロントに返す
 res.status(200).json(result)
 
   } catch (error) {
