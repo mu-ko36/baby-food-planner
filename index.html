@@ -751,15 +751,15 @@ ${ingredients}
     const apiKey = localStorage.getItem('claude_api_key');
     if(!apiKey) { openSettings(); throw new Error('APIキーが設定されていません。右上の⚙️から設定してください。'); }
 
-    const response = await fetch('/api/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key': apiKey,'anthropic-version':'2023-06-01'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages:[{role:'user', content: prompt}]
-      })
-    });
+const response = await fetch('/api/claude',{
+  method:'POST',
+  headers:{
+    'Content-Type':'application/json'
+  },
+  body: JSON.stringify({
+    ingredients: ingredients
+  })
+});
 
     if(!response.ok){
       const e = await response.json().catch(()=>({}));
