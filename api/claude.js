@@ -42,7 +42,22 @@ ${ingredients}
 
     const data = await response.json()
 
-    res.status(200).json(data)
+// Claudeのテキスト回答
+const text = data.content[0].text
+
+// JSON部分だけ取り出す
+const jsonStart = text.indexOf("{")
+const jsonEnd = text.lastIndexOf("}") + 1
+const jsonString = text.slice(jsonStart, jsonEnd)
+if (jsonStart === -1 || jsonEnd === -1) {
+  throw new Error("JSON not found in Claude response")
+}
+
+// JSONとして解析
+const result = JSON.parse(jsonString)
+
+// フロントに返す
+res.status(200).json(result)
 
   } catch (error) {
 
