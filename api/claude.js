@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { ingredients } = req.body;
+   { ingredients } = req.body;
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -14,8 +14,27 @@ export default async function handler(req, res) {
       messages: [
         {
           role: "user",
-          content: `以下の食材で赤ちゃん向け離乳食メニューを3つ作ってください: ${ingredients}`
-        }
+content: `
+以下の食材で11ヶ月赤ちゃん向け離乳食メニューを作ってください。
+
+食材:
+${ingredients}
+
+必ず以下のJSON形式で回答してください。
+説明文は書かないでください。
+
+{
+  "days":[
+    {
+      "day":1,
+      "menu":"メニュー名",
+      "recipe":"簡単レシピ"
+    }
+  ]
+}
+
+3日分作ってください。
+`        }
       ]
     })
   });
