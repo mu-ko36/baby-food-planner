@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍼 もぐもぐプランナー｜赤ちゃん離乳食メニュー</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+
+  :root {
+    --cream: #FFF8F0;
+    --peach: #FFD6B0;
+    --soft-orange: #FF8C42;
+    --warm-red: #E85D4A;
+    --green: #7DC67A;
+    --soft-green: #D4EDDA;
+    --soft-yellow: #FFF9C4;
+    --blue: #5B9BD5;
+    --soft-blue: #E8F3FF;
+    --purple: #9B7ED4;
+    --soft-purple: #F3EEFF;
+    --text: #4A3728;
+    --subtext: #8B6E5C;
+    --card-bg: #FFFCF8;
+    --shadow: rgba(232, 93, 74, 0.13);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Zen Maru Gothic', 'M PLUS Rounded 1c', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 15%, #FFE8D6 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, #D4EDDA 0%, transparent 45%);
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-7px); }
+  }
+  @keyframes dotBounce {
+    0%,80%,100% { transform: scale(0.55); opacity: 0.45; }
+    40%         { transform: scale(1);    opacity: 1; }
+  }
+
+  /* ── HEADER ── */
+  header { text-align: center; padding: 36px 20px 20px; animation: fadeDown 0.6s ease; }
+  .logo  { font-size: 2.8rem; display: block; margin-bottom: 6px; animation: bounce 2.2s infinite; }
+  h1     { font-size: clamp(1.35rem, 4vw, 1.9rem); font-weight: 700; color: var(--warm-red); }
+  .subtitle { font-size: 0.88rem; color: var(--subtext); margin-top: 5px; }
+
+  /* ── CONTAINER ── */
+  .container { max-width: 740px; margin: 0 auto; padding: 0 16px 64px; }
+
+  /* ── INPUT CARD ── */
+  .input-section {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 26px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .field-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--warm-red);
+    margin-bottom: 11px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* 月齢グリッド */
+  .age-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+  }
+  @media (min-width: 460px) { .age-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .age-btn {
+    padding: 11px 6px;
+    border: 2.5px solid var(--peach);
+    border-radius: 13px;
+    background: var(--cream);
+    font-family: inherit;
+    font-size: 0.77rem;
+    font-weight: 700;
+    color: var(--subtext);
+    cursor: pointer;
+    transition: all 0.17s;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .age-btn .age-num { font-size: 1rem; display: block; color: var(--text); }
+  .age-btn:hover    { border-color: var(--soft-orange); background: #FFF3EC; }
+  .age-btn.selected {
+    border-color: var(--soft-orange);
+    background: linear-gradient(135deg,#FFF3EC,#FFE8D6);
+    color: var(--warm-red);
+    box-shadow: 0 2px 10px rgba(255,140,66,.28);
+    transform: translateY(-1px);
+  }
+  .age-btn.selected .age-num { color: var(--warm-red); }
+
+  .divider { border: none; border-top: 2px dashed var(--peach); margin: 20px 0; }
+
+  /* テキストエリア */
+  textarea {
+    width: 100%;
+    border: 2.5px solid var(--peach);
+    border-radius: 14px;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 0.97rem;
+    color: var(--text);
+    background: var(--cream);
+    resize: vertical;
+    min-height: 110px;
+    outline: none;
+    line-height: 1.75;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  textarea:focus { border-color: var(--soft-orange); box-shadow: 0 0 0 3px rgba(255,140,66,.18); }
+  textarea::placeholder { color: #C4A99A; }
+
+  .hint {
+    font-size: 0.79rem;
+    color: var(--subtext);
+    margin-top: 9px;
+    padding: 9px 13px;
+    background: var(--soft-yellow);
+    border-radius: 9px;
+    line-height: 1.65;
+  }
+  .hint strong { color: var(--soft-orange); }
+
+  /* 生成ボタン */
+  .generate-btn {
+    width: 100%;
+    margin-top: 18px;
+    padding: 17px;
+    background: linear-gradient(135deg, var(--soft-orange), var(--warm-red));
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 1.08rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .03em;
+    box-shadow: 0 4px 16px rgba(232,93,74,.33);
+    transition: transform .15s, box-shadow .15s, opacity .15s;
+  }
+  .generate-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(232,93,74,.42); }
+  .generate-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+  /* エラー */
+  .error-box {
+    background: #FFF0EE; border: 2px solid #FFB3A7;
+    border-radius: 13px; padding: 13px 17px;
+    margin-top: 13px; color: var(--warm-red);
+    font-size: 0.87rem; line-height: 1.7; display: none;
+  }
+  .error-box.visible { display: block; animation: fadeUp .3s ease; }
+  .error-box strong  { display: block; margin-bottom: 3px; }
+
+  /* ローディング */
+  .loading { text-align: center; padding: 38px 20px; display: none; }
+  .loading.visible { display: block; animation: fadeUp .3s ease; }
+  .loading-dots { display: flex; justify-content: center; gap: 9px; margin-bottom: 14px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; animation: dotBounce 1.2s infinite; }
+  .dot:nth-child(1) { background: var(--soft-orange); }
+  .dot:nth-child(2) { background: var(--warm-red);   animation-delay: .2s; }
+  .dot:nth-child(3) { background: var(--green);       animation-delay: .4s; }
+  .loading p { color: var(--subtext); font-size: .93rem; line-height: 1.85; }
+
+  /* ── RESULT ── */
+  .result-section { display: none; }
+  .result-section.visible { display: block; animation: fadeUp .5s ease; }
+
+  .result-header { text-align: center; margin-bottom: 20px; }
+  .result-header h2 { font-size: 1.25rem; color: var(--warm-red); font-weight: 700; }
+  .age-badge {
+    display: inline-block; margin-top: 7px;
+    background: var(--peach); color: var(--warm-red);
+    font-size: .78rem; font-weight: 700;
+    padding: 3px 13px; border-radius: 20px;
+  }
+
+  /* 買い足しボックス */
+  .shopping-box {
+    background: var(--soft-blue);
+    border: 2px solid #B8D9F5;
+    border-radius: 18px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+  }
+  .shopping-box h3 {
+    font-size: .93rem; font-weight: 700;
+    color: var(--blue); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .shopping-list {
+    display: flex; flex-wrap: wrap; gap: 7px;
+  }
+  .shopping-item {
+    background: #fff; border: 1.5px solid #B8D9F5;
+    border-radius: 20px; padding: 4px 12px;
+    font-size: .82rem; color: var(--blue); font-weight: 700;
+  }
+  .shopping-none {
+    font-size: .85rem; color: var(--blue);
+  }
+
+  /* 週グリッド */
+  .week-grid { display: flex; flex-direction: column; gap: 15px; }
+
+  .day-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 3px 16px var(--shadow);
+    animation: fadeUp .48s ease both;
+  }
+
+  /* 平日/週末バッジ */
+  .day-header {
+    padding: 11px 18px;
+    display: flex; align-items: center; gap: 9px;
+    font-weight: 700; font-size: .97rem;
+  }
+  .day-emoji { font-size: 1.35rem; }
+  .day-type-badge {
+    margin-left: auto;
+    font-size: .7rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 10px;
+  }
+  .badge-weekday { background: #E8F3FF; color: var(--blue); }
+  .badge-weekend { background: #FFE8F5; color: #C0578A; }
+
+  .day-card:nth-child(1) .day-header { background: #FFF0E8; color: #E85D4A; }
+  .day-card:nth-child(2) .day-header { background: #FFF9C4; color: #C78E00; }
+  .day-card:nth-child(3) .day-header { background: #E8F8E8; color: #2E8B57; }
+  .day-card:nth-child(4) .day-header { background: #E8F0FF; color: #5B7FCF; }
+  .day-card:nth-child(5) .day-header { background: #FFE8F5; color: #C0578A; }
+  .day-card:nth-child(6) .day-header { background: #FFF0D8; color: #D4830A; }
+  .day-card:nth-child(7) .day-header { background: #F0E8FF; color: #7B52C9; }
+
+  .day-body { padding: 0 0 14px; }
+
+  /* 食事ブロック（朝/昼/夕） */
+  .meal-block {
+    border-top: 1.5px dashed #F0E4DA;
+    padding: 11px 18px 4px;
+  }
+  .meal-block-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .meal-time-label {
+    font-size: .72rem; font-weight: 700; color: #fff;
+    padding: 3px 9px; border-radius: 7px; white-space: nowrap;
+  }
+  .label-morning { background: #FF8C42; }
+  .label-noon    { background: #4CAF80; }
+  .label-evening { background: #7B68EE; }
+
+  /* ご飯/汁/おかず 3列 */
+  .dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+  }
+  .dish-card {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  .dish-type {
+    font-size: .67rem; font-weight: 700;
+    color: var(--subtext); margin-bottom: 3px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .dish-name { font-size: .85rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+
+  /* 栄養バランスバー */
+  .nutrition-row {
+    display: flex; gap: 5px; flex-wrap: wrap;
+    margin-top: 7px;
+  }
+  .nutr-tag {
+    font-size: .67rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 8px;
+  }
+  .nutr-carb   { background: #FFF3C4; color: #9A6B00; }
+  .nutr-protein{ background: #FFE0DC; color: #C03020; }
+  .nutr-veggie { background: #DCEFD6; color: #2A6B35; }
+  .nutr-calcium{ background: #E0EEFF; color: #2B5FA0; }
+  .nutr-iron   { background: #EDE0FF; color: #6B3EA0; }
+
+  /* アドバイス */
+  .tip-box {
+    margin-top: 22px;
+    background: var(--soft-green);
+    border-radius: 18px;
+    padding: 18px 22px;
+    border-left: 4px solid var(--green);
+  }
+  .tip-box h3 {
+    font-size: .92rem; font-weight: 700; color: #2E6B40;
+    margin-bottom: 9px; display: flex; align-items: center; gap: 6px;
+  }
+  .tip-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .tip-box li {
+    font-size: .83rem; color: #2E6B40;
+    padding-left: 17px; position: relative; line-height: 1.55;
+  }
+  .tip-box li::before { content:'✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+
+  /* 栄養アドバイス */
+  .nutrition-tip {
+    margin-top: 14px;
+    background: var(--soft-purple);
+    border-radius: 18px;
+    padding: 16px 22px;
+    border-left: 4px solid var(--purple);
+  }
+  .nutrition-tip h3 {
+    font-size: .92rem; font-weight: 700; color: #5B3A9B;
+    margin-bottom: 9px; display: flex; align-items: center; gap: 6px;
+  }
+  .nutrition-tip ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .nutrition-tip li {
+    font-size: .83rem; color: #5B3A9B;
+    padding-left: 17px; position: relative; line-height: 1.55;
+  }
+  .nutrition-tip li::before { content:'◆'; position: absolute; left: 0; color: var(--purple); font-size: .6rem; top: 3px; }
+
+  .retry-btn {
+    width: 100%; margin-top: 22px; padding: 13px;
+    background: #fff; color: var(--soft-orange);
+    border: 2.5px solid var(--soft-orange);
+    border-radius: 16px; font-family: inherit;
+    font-size: .97rem; font-weight: 700; cursor: pointer;
+    transition: all .15s;
+  }
+  .retry-btn:hover { background: #FFF3EC; transform: translateY(-1px); }
+
+  footer {
+    text-align: center; font-size: .73rem; color: var(--subtext);
+    padding: 20px; line-height: 1.85;
+  }
+
+  /* ── API KEY SETUP ── */
+  .api-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(74,55,40,0.55);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeUp .3s ease;
+  }
+  .api-overlay.hidden { display: none; }
+
+  .api-modal {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 32px 28px;
+    max-width: 460px; width: 100%;
+    box-shadow: 0 8px 40px rgba(74,55,40,.25);
+    text-align: center;
+  }
+  .api-modal .modal-icon { font-size: 2.6rem; margin-bottom: 10px; display: block; }
+  .api-modal h2 { font-size: 1.2rem; font-weight: 700; color: var(--warm-red); margin-bottom: 6px; }
+  .api-modal p  { font-size: .83rem; color: var(--subtext); line-height: 1.7; margin-bottom: 18px; }
+  .api-modal a  { color: var(--soft-orange); font-weight: 700; }
+
+  .api-input-wrap { position: relative; margin-bottom: 10px; }
+  .api-input-wrap input {
+    width: 100%;
+    border: 2.5px solid var(--peach);
+    border-radius: 12px;
+    padding: 13px 44px 13px 14px;
+    font-family: inherit; font-size: .95rem;
+    color: var(--text); background: var(--cream);
+    outline: none; transition: border-color .2s, box-shadow .2s;
+    letter-spacing: .05em;
+  }
+  .api-input-wrap input:focus {
+    border-color: var(--soft-orange);
+    box-shadow: 0 0 0 3px rgba(255,140,66,.18);
+  }
+  .api-input-wrap input::placeholder { color: #C4A99A; letter-spacing: 0; }
+  .toggle-vis {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px;
+  }
+
+  .api-save-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--soft-orange), var(--warm-red));
+    color: #fff; border: none; border-radius: 13px;
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 14px rgba(232,93,74,.3);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .api-save-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(232,93,74,.4); }
+
+  .api-note {
+    font-size: .75rem; color: var(--subtext); margin-top: 12px; line-height: 1.65;
+  }
+
+  /* 設定ボタン（右上固定） */
+  .settings-fab {
+    position: fixed; top: 14px; right: 14px; z-index: 500;
+    background: var(--card-bg);
+    border: 2px solid var(--peach);
+    border-radius: 50%; width: 42px; height: 42px;
+    font-size: 1.15rem; cursor: pointer;
+    box-shadow: 0 2px 10px var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .settings-fab:hover { border-color: var(--soft-orange); transform: scale(1.08); }
+
+  /* APIキー設定済みバナー */
+  .api-status {
+    font-size: .75rem; text-align: center;
+    margin-bottom: 14px; padding: 7px 12px;
+    border-radius: 9px; font-weight: 700;
+  }
+  .api-status.ok  { background: var(--soft-green); color: #2E6B40; }
+  .api-status.ng  { background: #FFF0EE; color: var(--warm-red); }
+
+</style>
+</head>
+<body>
+
+<!-- APIキー設定モーダル -->
+<div class="api-overlay" id="apiOverlay">
+  <div class="api-modal">
+    <span class="modal-icon">🔑</span>
+    <h2>Claude APIキーを設定してください</h2>
+    <p>このアプリはClaude AIを使って献立を生成します。<br>
+       Anthropicの <a href="https://console.anthropic.com/settings/keys" target="_blank">コンソール</a> からAPIキーを取得してください。<br>
+       キーはこのブラウザにのみ保存され、外部には送信されません。</p>
+    <div class="api-input-wrap">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+      <button class="toggle-vis" onclick="toggleApiVis()" title="表示切替">👁</button>
+    </div>
+    <button class="api-save-btn" onclick="saveApiKey()">保存して始める</button>
+    <p class="api-note">🔒 キーはブラウザのlocalStorageに保存されます。<br>共有PCでは使用後にリセットしてください。</p>
+  </div>
+</div>
+
+<!-- 設定ボタン（右上） -->
+<button class="settings-fab" onclick="openSettings()" title="APIキー設定">⚙️</button>
+
+
+<header>
+  <span class="logo">🍼</span>
+  <h1>もぐもぐプランナー</h1>
+  <p class="subtitle">月齢・栄養バランスを考えた離乳食メニューを自動作成</p>
+</header>
+
+<div class="api-status" id="apiStatus"></div>
+
+<div class="container">
+  <div class="input-section">
+
+    <!-- 月齢 -->
+    <div class="field-label">👶 赤ちゃんの月齢</div>
+    <div class="age-grid">
+      <button class="age-btn" data-age="5" onclick="selectAge(this)">
+        <span class="age-num">5〜6ヶ月</span>初期（ごっくん期）
+      </button>
+      <button class="age-btn" data-age="7" onclick="selectAge(this)">
+        <span class="age-num">7〜8ヶ月</span>中期（もぐもぐ期）
+      </button>
+      <button class="age-btn selected" data-age="9" onclick="selectAge(this)">
+        <span class="age-num">9〜11ヶ月</span>後期（かみかみ期）
+      </button>
+      <button class="age-btn" data-age="12" onclick="selectAge(this)">
+        <span class="age-num">12〜18ヶ月</span>完了期（ぱくぱく期）
+      </button>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 食材 -->
+    <div class="field-label">🛒 冷蔵庫にある食材</div>
+    <textarea id="ingredients" placeholder="例）ささみ、豆腐、にんじん、キャベツ
+長ネギ、はんぺん、ピーマン
+卵、牛乳、シーチキン"></textarea>
+    <div class="hint">💡 <strong>ヒント：</strong>カンマや改行で区切ってください。足りない食材は買い足し提案もします！</div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateMenu()">
+      ✨ 1週間のメニューを作る
+    </button>
+
+    <div class="error-box" id="errorBox">
+      <strong>⚠️ エラーが発生しました</strong>
+      <span id="errorMsg"></span>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div class="loading" id="loading">
+    <div class="loading-dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <p>栄養バランスを考えながら<br>献立を作っています… 🤔<br><small style="font-size:.8rem;opacity:.7">少し時間がかかります</small></p>
+  </div>
+
+  <!-- 結果 -->
+  <div class="result-section" id="resultSection">
+    <div class="result-header">
+      <h2>📅 今週の離乳食メニュー</h2>
+      <span class="age-badge" id="ageBadge"></span>
+    </div>
+
+    <!-- 買い足し -->
+    <div class="shopping-box" id="shoppingBox"></div>
+
+    <div class="week-grid" id="weekGrid"></div>
+
+    <div class="tip-box" id="tipBox"></div>
+    <div class="nutrition-tip" id="nutritionTip"></div>
+
+    <button class="retry-btn" onclick="resetApp()">🔄 別の食材で作り直す</button>
+  </div>
+</div>
+
+<footer>
+  ※ アレルギーがある食材は除いてください。初めての食材は少量から試しましょう。<br>
+  ※ このアプリはAIによる提案です。実際の食事は赤ちゃんの状態に合わせてください。
+</footer>
+
+<script>
+
+// ── APIキー管理 ──
+const API_KEY_STORAGE = 'claude_api_key';
+
+function initApiKey() {
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if (!key) {
+    showOverlay(true);
+    updateStatus(false);
+  } else {
+    showOverlay(false);
+    updateStatus(true);
+  }
+}
+
+function showOverlay(show) {
+  document.getElementById('apiOverlay').classList.toggle('hidden', !show);
+}
+
+function openSettings() {
+  const cur = localStorage.getItem(API_KEY_STORAGE) || '';
+  document.getElementById('apiKeyInput').value = cur;
+  showOverlay(true);
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-')) {
+    alert('APIキーは "sk-" から始まる文字列です。確認してください。');
+    return;
+  }
+  localStorage.setItem(API_KEY_STORAGE, val);
+  showOverlay(false);
+  updateStatus(true);
+}
+
+function updateStatus(hasKey) {
+  const el = document.getElementById('apiStatus');
+  if (hasKey) {
+    const key = localStorage.getItem(API_KEY_STORAGE);
+    const masked = key.slice(0,8) + '••••••••' + key.slice(-4);
+    el.className = 'api-status ok';
+    el.innerHTML = `✅ APIキー設定済み: <code>${masked}</code>`;
+  } else {
+    el.className = 'api-status ng';
+    el.innerHTML = '⚠️ APIキー未設定 — 右上の ⚙️ から設定してください';
+  }
+}
+
+function toggleApiVis() {
+  const inp = document.getElementById('apiKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// 起動時に確認
+window.addEventListener('DOMContentLoaded', initApiKey);
+
+const DAYS      = ['月曜日','火曜日','水曜日','木曜日','金曜日','土曜日','日曜日'];
+const DAY_EMOJIS= ['🌸','🌞','🍀','💧','⭐','🌈','🌙'];
+// 0=月〜4=金: 平日、5=土・6=日: 週末
+const IS_WEEKDAY= [true,true,true,true,true,false,false];
+
+const AGE_INFO = {
+  5: {
+    label:'5〜6ヶ月（初期・ごっくん期）',
+    texture:'なめらかペースト状（10倍がゆ）',
+    seasoning:'調味料なし・素材の味のみ',
+    notes:'1日1回食。アレルギー注意で1品ずつ試す。はちみつ絶対NG。',
+    nutrition:'鉄分（米・野菜）・ビタミンCを意識。たんぱく質はまだ少量。',
+    weekdayMeals:['morning'],
+    weekendMeals:['morning']
+  },
+  7: {
+    label:'7〜8ヶ月（中期・もぐもぐ期）',
+    texture:'舌でつぶせる柔らかさ（絹ごし豆腐程度・7倍がゆ）',
+    seasoning:'調味料ごく少量・だしを活用',
+    notes:'1日2回食。たんぱく質を少量追加。はちみつ絶対NG。',
+    nutrition:'鉄分（豆腐・しらす）・カルシウム・ビタミンAを意識。',
+    weekdayMeals:['morning','evening'],
+    weekendMeals:['morning','noon','evening']
+  },
+  9: {
+    label:'9〜11ヶ月（後期・かみかみ期）',
+    texture:'歯茎でつぶせる固さ（バナナ程度・5倍がゆ〜軟飯）',
+    seasoning:'薄味・だしや素材の旨みを活用',
+    notes:'1日3回食。手づかみ食べOK。はちみつ絶対NG。',
+    nutrition:'鉄分（肉・魚・レバー）・カルシウム・亜鉛・ビタミンD・食物繊維を意識。',
+    weekdayMeals:['morning','evening'],
+    weekendMeals:['morning','noon','evening']
+  },
+  12: {
+    label:'12〜18ヶ月（完了期・ぱくぱく期）',
+    texture:'歯茎でかめる固さ（軟飯〜普通ご飯に近い）',
+    seasoning:'薄味（大人の半分以下）',
+    notes:'1日3回食＋補食。大人食を薄味で取り分けてもOK。はちみつ慎重に。',
+    nutrition:'鉄分・カルシウム・食物繊維・ビタミンD・DHA（魚）を意識。',
+    weekdayMeals:['morning','evening'],
+    weekendMeals:['morning','noon','evening']
+  }
+};
+
+let selectedAge = 9;
+
+function selectAge(btn){
+  document.querySelectorAll('.age-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAge = parseInt(btn.dataset.age);
+}
+
+// ── JSON修復パーサー ──
+function repairAndParseJSON(str){
+  try { return JSON.parse(str); } catch(_){}
+  let s = str.trim();
+  s = s.replace(/,\s*([}\]])/g,'$1').replace(/,\s*$/g,'');
+  const opens  = (s.match(/\{/g)||[]).length - (s.match(/\}/g)||[]).length;
+  const aopens = (s.match(/\[/g)||[]).length - (s.match(/\]/g)||[]).length;
+  for(let i=0;i<aopens;i++) s+=']';
+  for(let i=0;i<opens; i++) s+='}';
+  try { return JSON.parse(s); } catch(e){
+    throw new Error('JSONの解析に失敗しました。再試行してください。');
+  }
+}
+
+// ── メニュー生成 ──
+async function generateMenu(){
+  const ingredients = document.getElementById('ingredients').value.trim();
+  if(!ingredients){ alert('食材を入力してください！'); return; }
+
+  const btn        = document.getElementById('generateBtn');
+  const loading    = document.getElementById('loading');
+  const resultSection = document.getElementById('resultSection');
+  const errorBox   = document.getElementById('errorBox');
+
+  btn.disabled = true;
+  loading.classList.add('visible');
+  resultSection.classList.remove('visible');
+  errorBox.classList.remove('visible');
+
+  const info = AGE_INFO[selectedAge];
+
+  // 平日/週末の食事構成を説明
+  const scheduleDesc = `
+- 平日（月〜金）: 朝食・夕食のみ（2回。昼は保育園のため不要）
+- 週末（土・日）: 朝食・昼食・夕食（3回）
+※5〜6ヶ月は朝のみ1回食`;
+
+  const prompt = `あなたは赤ちゃん離乳食の管理栄養士です。以下の条件で1週間（月〜日）の離乳食プランを作成してください。
+
+【対象月齢】${info.label}
+【食感】${info.texture}
+【味付け】${info.seasoning}
+【注意事項】${info.notes}
+【栄養バランスの重点】${info.nutrition}
+
+【スケジュール】${scheduleDesc}
+
+【冷蔵庫にある食材】
+${ingredients}
+
+【出力ルール】
+- 各食事は「ご飯（主食）」「汁物」「おかず（主菜/副菜）」の3種類を必ず提案
+- 1週間で栄養バランスが偏らないよう、鉄分・カルシウム・ビタミン・たんぱく質・食物繊維をバランスよく配分
+- 冷蔵庫の食材を優先的に使うが、不足する場合は買い足し食材リストに追加
+- 各料理は月齢に合った調理法で
+
+以下のJSON形式のみで返答してください（マークダウン・前置き・後置き一切不要）:
+
+{
+  "shopping": ["買い足し食材1","買い足し食材2"],
+  "days": [
+    {
+      "weekday": true,
+      "morning": {
+        "rice":  {"name":"ご飯メニュー名","nutrition":["炭水化物"]},
+        "soup":  {"name":"汁物メニュー名","nutrition":["野菜"]},
+        "side":  {"name":"おかずメニュー名","nutrition":["たんぱく質","鉄分"]}
+      },
+      "evening": {
+        "rice":  {"name":"ご飯メニュー名","nutrition":["炭水化物"]},
+        "soup":  {"name":"汁物メニュー名","nutrition":["野菜","カルシウム"]},
+        "side":  {"name":"おかずメニュー名","nutrition":["たんぱく質"]}
+      }
+    }
+  ],
+  "tips": ["調理アドバイス1","調理アドバイス2","調理アドバイス3"],
+  "nutritionAdvice": ["栄養バランスアドバイス1","栄養バランスアドバイス2"]
+}
+
+【重要】
+- daysは必ず7要素（インデックス0=月〜6=日）
+- 平日（weekday:true）はmorning+eveningのみ。noonは不要
+- 週末（weekday:false）はmorning+noon+eveningの3食
+- nutritionタグは["炭水化物","たんぱく質","野菜","カルシウム","鉄分","ビタミン","食物繊維","DHA"]から該当するものを選ぶ
+- shopping が空なら []`;
+
+  try {
+    const apiKey = localStorage.getItem('claude_api_key');
+    if(!apiKey) { openSettings(); throw new Error('APIキーが設定されていません。右上の⚙️から設定してください。'); }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key': apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages:[{role:'user', content: prompt}]
+      })
+    });
+
+    if(!response.ok){
+      const e = await response.json().catch(()=>({}));
+      const c = response.status;
+      if(c===401) throw new Error('APIキーが正しくありません（401）');
+      if(c===429) throw new Error('リクエストが多すぎます。少し待ってから再試行してください（429）');
+      throw new Error(`APIエラー ${c}: ${e?.error?.message||'不明なエラー'}`);
+    }
+
+    const data = await response.json();
+    const raw  = (data.content||[]).map(i=>i.text||'').join('');
+    const m    = raw.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('AIの回答からJSONを読み取れませんでした。再試行してください。');
+
+    const parsed = repairAndParseJSON(m[0]);
+    if(!parsed.days||parsed.days.length===0) throw new Error('メニューデータが空です。再試行してください。');
+
+    renderResult(parsed, info);
+
+  } catch(err){
+    console.error(err);
+    let msg = err.message||'もう一度お試しください。';
+    if(msg.includes('Failed to fetch')||msg.includes('NetworkError'))
+      msg='ネットワークに接続できません。インターネット接続を確認してください。';
+    document.getElementById('errorMsg').textContent = msg;
+    errorBox.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('visible');
+  }
+}
+
+// ── 描画 ──
+function renderResult(data, info){
+  document.getElementById('ageBadge').textContent = info.label;
+
+  // 買い足しリスト
+  const sb = document.getElementById('shoppingBox');
+  if(data.shopping && data.shopping.length > 0){
+    sb.innerHTML = `
+      <h3>🛍️ 買い足し推奨食材</h3>
+      <div class="shopping-list">
+        ${data.shopping.map(s=>`<span class="shopping-item">＋ ${s}</span>`).join('')}
+      </div>`;
+    sb.style.display='block';
+  } else {
+    sb.innerHTML=`<h3>🛍️ 買い足し推奨食材</h3><p class="shopping-none">✅ 今ある食材で1週間まかなえます！</p>`;
+    sb.style.display='block';
+  }
+
+  // 週カード
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML='';
+
+  data.days.slice(0,7).forEach((day,i)=>{
+    const isWeekday = IS_WEEKDAY[i];
+    const card = document.createElement('div');
+    card.className='day-card';
+    card.style.animationDelay=`${i*0.07}s`;
+
+    // どの食事を表示するか
+    const meals = [];
+    if(isWeekday){
+      if(day.morning) meals.push({key:'morning', label:'🌅 朝食', cls:'label-morning', data:day.morning});
+      if(day.evening) meals.push({key:'evening', label:'🌙 夕食', cls:'label-evening', data:day.evening});
+    } else {
+      if(day.morning) meals.push({key:'morning', label:'🌅 朝食', cls:'label-morning', data:day.morning});
+      if(day.noon)    meals.push({key:'noon',    label:'🌿 昼食', cls:'label-noon',    data:day.noon});
+      if(day.evening) meals.push({key:'evening', label:'🌙 夕食', cls:'label-evening', data:day.evening});
+    }
+
+    const mealsHTML = meals.map(m => mealBlockHTML(m.label, m.cls, m.data)).join('');
+
+    card.innerHTML=`
+      <div class="day-header">
+        <span class="day-emoji">${DAY_EMOJIS[i]}</span>
+        <span>${DAYS[i]}</span>
+        <span class="day-type-badge ${isWeekday?'badge-weekday':'badge-weekend'}">
+          ${isWeekday?'平日・保育園':'週末'}
+        </span>
+      </div>
+      <div class="day-body">${mealsHTML}</div>`;
+    grid.appendChild(card);
+  });
+
+  // 調理アドバイス
+  const tb = document.getElementById('tipBox');
+  if(data.tips?.length>0){
+    tb.innerHTML=`<h3>🌿 調理のポイント</h3><ul>${data.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
+    tb.style.display='block';
+  } else { tb.style.display='none'; }
+
+  // 栄養アドバイス
+  const nb = document.getElementById('nutritionTip');
+  if(data.nutritionAdvice?.length>0){
+    nb.innerHTML=`<h3>💜 栄養バランスアドバイス</h3><ul>${data.nutritionAdvice.map(t=>`<li>${t}</li>`).join('')}</ul>`;
+    nb.style.display='block';
+  } else { nb.style.display='none'; }
+
+  document.getElementById('resultSection').classList.add('visible');
+  document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function mealBlockHTML(timeLabel, timeCls, meal){
+  if(!meal) return '';
+  const nutrColors = {
+    '炭水化物':'nutr-carb','たんぱく質':'nutr-protein','野菜':'nutr-veggie',
+    'カルシウム':'nutr-calcium','鉄分':'nutr-iron','ビタミン':'nutr-veggie',
+    '食物繊維':'nutr-veggie','DHA':'nutr-calcium'
+  };
+
+  // ご飯/汁/おかずのカード
+  const dishes = [
+    {icon:'🍚', type:'ご飯', data: meal.rice},
+    {icon:'🍵', type:'汁物', data: meal.soup},
+    {icon:'🥣', type:'おかず', data: meal.side},
+  ];
+
+  const dishCardsHTML = dishes.map(d => {
+    if(!d.data) return '';
+    // nutritionタグ
+    const tags = (d.data.nutrition||[]).map(n=>{
+      const cls = nutrColors[n]||'nutr-carb';
+      return `<span class="nutr-tag ${cls}">${n}</span>`;
+    }).join('');
+    return `
+      <div class="dish-card">
+        <div class="dish-type">${d.icon} ${d.type}</div>
+        <div class="dish-name">${d.data.name||''}</div>
+        ${tags ? `<div class="nutrition-row">${tags}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="meal-block">
+      <div class="meal-block-header">
+        <span class="meal-time-label ${timeCls}">${timeLabel}</span>
+      </div>
+      <div class="dishes-grid">${dishCardsHTML}</div>
+    </div>`;
+}
+
+function resetApp(){
+  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('errorBox').classList.remove('visible');
+  document.getElementById('ingredients').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>document.getElementById('ingredients').focus(),500);
+}
+</script>
+</body>
+</html>
